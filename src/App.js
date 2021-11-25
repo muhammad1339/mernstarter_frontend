@@ -1,6 +1,5 @@
-import "tailwindcss/tailwind.css"
+import { Contact } from "./components/LoginForm";
 
-import { LoginForm , Contact } from "./components/LoginForm";
 function App() {
   return (
     <div className="">
