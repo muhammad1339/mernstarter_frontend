@@ -1,9 +1,9 @@
-import { Contact } from "./components/LoginForm";
+import { LoginForm } from "./components/LoginForm";
 
 function App() {
   return (
-    <div className="">
-     <Contact/>
+    <div >
+     <LoginForm />
     </div>
   );
 }
