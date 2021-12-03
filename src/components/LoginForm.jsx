@@ -59,19 +59,104 @@ export const RegisterComponent = () => {
 
 export const RegisterForm = () => {
   const [nameState, setName] = useState("");
+  const [nameErrorState, setNameError] = useState("");
+
   const [phoneState, setPhone] = useState("");
+  const [phoneErrorState, setPhoneError] = useState("");
+
   const [emailState, setEmail] = useState("");
   const [passwordState, setPassword] = useState("");
   const [confirmPasswordState, setConfirmPassword] = useState("");
 
+  const [isLoading, setIsloading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  
+  const postNewRegister = (event) => {
+    event.preventDefault();
+
+    try {
+      console.log(emailState);
+      if (nameState.length === 0) {
+        setNameError("");
+        setNameError("Shame on You ,Name Can't Be Empty");
+        return;
+      } else {
+        setNameError("");
+      }
+      if (phoneState.length === 0) {
+        setPhoneError("");
+        setTimeout(() => {
+          setPhoneError("Shame on You ,Phone Can't Be Empty");
+        }, 100);
+        return;
+      } else {
+        setPhoneError("");
+      }
+
+      setIsloading(true);
+
+      axios({
+        method: "post",
+        url: "http://localhost:5000/api/user/",
+        data: JSON.stringify({
+          name: nameState,
+          phone: phoneState,
+          email: emailState,
+          password: passwordState,
+          avatarPath: "files/users/images/nophoto.png",
+          address: "default address",
+        }),
+        headers: { "Content-Type": "application/json" },
+      })
+        .then((res) => {
+          console.log(res);
+          setIsloading(false);
+          setIsLoggedIn(res.status === 200);
+        })
+        .catch((err) => {
+          console.log("errerrerrerrerrerr");
+          setIsloading(false);
+          setIsLoggedIn(false);
+        });
+      console.log("userLoginResponse");
+    } catch (error) {
+      console.log(error);
+      setIsloading(false);
+      setIsLoggedIn(false);
+    }
+  };
+
   return (
-    <div >
-      <h1 className="text-2xl text-center capitalize tracking-wide text-black text-bold font-serif">
+    <div>
+      {isLoading ? (
+        <div className="flex justify-center p-8">
+          <Spinner loading={isLoading} />
+        </div>
+      ) : null}
+      <h1
+        className="bg-blue-200 text-2xl text-center capitalize rounded-2xl shadow-lg
+      tracking-wide text-gray-700 text-bold font-serif p-8 m-8 font-bold"
+      >
         Register new account and create your stores
       </h1>
       <form>
-        {buildInputGroup("Name", "name", "text", nameState, setName)}
-        {buildInputGroup("Phone", "phone", "number", phoneState, setPhone)}
+        {buildInputGroup(
+          "Name",
+          "name",
+          "text",
+          nameState,
+          setName,
+          nameErrorState
+        )}
+        {buildInputGroup(
+          "Phone",
+          "phone",
+          "number",
+          phoneState,
+          setPhone,
+          phoneErrorState
+        )}
         {buildInputGroup("Email", "email", "email", emailState, setEmail)}
         {buildInputGroup(
           "Password",
@@ -81,17 +166,18 @@ export const RegisterForm = () => {
           setPassword
         )}
         {buildInputGroup(
-          "Password",
+          "Confirm Password",
           "password",
           "password",
           confirmPasswordState,
           setConfirmPassword
         )}
-        {buildSubmitGroup("Register", null)}
+        {buildSubmitGroup("Register", postNewRegister)}
       </form>
     </div>
   );
 };
+
 export const LoginForm = () => {
   const [emailState, setEmail] = useState("");
   const [passwordState, setPassword] = useState("");
@@ -140,7 +226,11 @@ export const LoginForm = () => {
 
       {isLoading && isLoggedIn ? null : (
         <div>
-          <h1 className="text-2xl text-center capitalize tracking-wide text-black text-bold font-serif">
+          <h1
+            className="bg-blue-200 text-2xl text-center capitalize rounded-2xl shadow-lg
+            tracking-wide text-gray-700 text-bold font-serif p-8 m-8 font-bold"
+          >
+            {" "}
             login to your store
           </h1>
           <form>
@@ -161,7 +251,14 @@ export const LoginForm = () => {
   );
 };
 
-const buildInputGroup = (lbl, lblFor, inputType, dataState, setData) => {
+const buildInputGroup = (
+  lbl,
+  lblFor,
+  inputType,
+  dataState,
+  setData,
+  errorState = ""
+) => {
   return (
     <div className={divInputStyle}>
       <label htmlFor={lblFor} className={labelStyle}>
@@ -169,6 +266,7 @@ const buildInputGroup = (lbl, lblFor, inputType, dataState, setData) => {
       </label>
 
       <input
+        required
         type={inputType}
         name={lblFor}
         id={lblFor}
@@ -176,6 +274,12 @@ const buildInputGroup = (lbl, lblFor, inputType, dataState, setData) => {
         value={dataState}
         onChange={(e) => setData(e.target.value)}
       />
+
+      {errorState.length > 0 && (
+        <span className="text-red-700 transition duration-75 ease-in-out 
+         transform 
+         active:translate-y-1 active:scale-10 ">{errorState}</span>
+      )}
     </div>
   );
 };
